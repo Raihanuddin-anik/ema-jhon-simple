@@ -9,6 +9,7 @@ import ProductItem from '../ProductItem/ProductItem';
 const Review = () => {
 
     const [cart, setCart]=useState([]);
+    console.log(cart)
 
       const removeProduct = (productkey) =>{
       const newCart = cart.filter(pd=>pd.key !== productkey)
@@ -18,12 +19,23 @@ const Review = () => {
     useEffect(()=>{
     const savedCart = getDatabaseCart();
     const productkey = Object.keys(savedCart);
-    const cartProduct =productkey.map(key =>{
-        const product = fakeData.find( pd => pd.key === key );
-        product.quantity = savedCart[key]
-        return product; 
-    })
-      setCart(cartProduct);
+
+     fetch('https://boiling-taiga-26918.herokuapp.com/productsByKeys',{
+       method: 'POST',
+       headers: {
+          'Content-Type' : 'application/json'
+       },
+       body: JSON.stringify(productkey)
+     })
+     .then(res =>res.json())
+     .then(data => setCart(data))
+     
+    // const cartProduct =productkey.map(key =>{
+    //     const product = fakeData.find( pd => pd.key === key );
+    //     product.quantity = savedCart[key]
+    //     return product; 
+    // })
+    //   setCart(cartProduct);
      
     },[])
     const history = useHistory();

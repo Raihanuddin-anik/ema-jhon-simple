@@ -1,26 +1,34 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import fakeData from '../../fakeData';
 import { addToDatabaseCart, getDatabaseCart } from '../../utilities/databaseManager';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
 import './Shop.css';
 const Shop = () => {
-    const first10 = fakeData.slice(0,10);
-    const [products, setProducts]= useState(first10);
+    // const first10 = fakeData.slice(0,10);
+    const [products, setProducts]= useState([]);
     const [cart, setcart] = useState([]);
+    console.log(cart)
+
+    useEffect(()=>{
+        fetch('https://boiling-taiga-26918.herokuapp.com/products') 
+        .then(res =>res.json())
+        .then(data =>setProducts(data))
+    })
       
     useEffect(()=>{
-        const savedCart = getDatabaseCart();
+        const savedCart = getDatabaseCart(); 
          const productkey = Object.keys(savedCart);
-         const previousCrt = productkey.map(pkey => {
-             const product = fakeData.find( pd => pd.key ===pkey);
-             product.quantity = savedCart[pkey]
-             console.log(pkey, savedCart[pkey])
-             return product;
-         })
-         setcart(previousCrt)
+         fetch('https://boiling-taiga-26918.herokuapp.com/productsByKeys',{
+            method: 'POST',
+            headers: {
+               'Content-Type' : 'application/json'
+            },
+            body: JSON.stringify(productkey)
+          })
+          .then(res =>res.json())
+          .then(data => setcart(data))
          
     },[])
     const handleAddProduct = (product)=>{
